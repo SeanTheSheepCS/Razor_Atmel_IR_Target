@@ -1,8 +1,8 @@
 /***********************************************************************************************************************
-File: main.c                                                                
+File: main.c
 
 Description:
-Container for the EiE firmware.  
+Container for the EiE firmware.
 ***********************************************************************************************************************/
 
 #include "configuration.h"
@@ -32,7 +32,7 @@ Main Program
 Main has two sections:
 
 1. Initialization which is run once on power-up or reset.  All drivers and applications are setup here without timing
-contraints but must complete execution regardless of success or failure of starting the application. 
+contraints but must complete execution regardless of success or failure of starting the application.
 
 2. Super loop which runs infinitely giving processor time to each application.  The total loop time should not exceed
 1ms of execution time counting all application execution.  SystemSleep() will execute to complete the remaining time in
@@ -59,12 +59,11 @@ void main(void)
 
   ButtonInitialize();
   InputPinInitialize();
-  OutputPinInitialize();
-  TimerInitialize();  
+  TimerInitialize();
   SspInitialize();
   TWIInitialize();
   Adc12Initialize();
-  
+
   LcdInitialize();
   LedInitialize();
   AntInitialize();
@@ -73,27 +72,24 @@ void main(void)
 
   /* Application initialization */
 
-  IrGateInitialize();
-  ANTMChannelInitialize();
-  ANTSChannelInitialize();
+  IrTargetInitialize();
 
-  
+
   /* Exit initialization */
   SystemStatusReport();
   G_u32SystemFlags &= ~_SYSTEM_INITIALIZING;
-    
-  /* Super loop */  
+
+  /* Super loop */
   while(1)
   {
     WATCHDOG_BONE();
-    
+
     /* Drivers */
     LedUpdate();
     ButtonRunActiveState();
     InputPinRunActiveState();
-    OutputPinRunActiveState();
     UartRunActiveState();
-    TimerRunActiveState(); 
+    TimerRunActiveState();
     SspRunActiveState();
     TWIRunActiveState();
     Adc12RunActiveState();
@@ -105,34 +101,15 @@ void main(void)
     SdCardRunActiveState();
 
     /* Applications */
-    IrGateRunActiveState();
-    
-    /* ANT message */
-    
-    // Q: WHY IS THE CODE LIKE THIS?
-    // A: Both channels call the AntReadAppMessageBuffer function in their idle state. The first one to call the function has it return true, the other one will return false.
-    //    The ant_m_channel only sends his message when AntReadAppMessageBuffer returns true and the ant_s_channel only updates what message he recieves when AntReadAppMessageBuffer returns true
-    //    These if statements make sure that sometimes ant_m_channel gets to send a message, and other times ant_s_channel gets to process a message
-    // Better solution (?) : store AntReadAppMessageBuffer's return value in some global variable and have both 
-    
-    if(G_u32SystemTime1ms % 3 == 0 || G_u32SystemTime1ms % 3 == 1)
-    {
-      ANTSChannelRunActiveState();
-      ANTMChannelRunActiveState();
-    }
-    else if(G_u32SystemTime1ms % 3 == 2)
-    {
-      ANTMChannelRunActiveState();
-      ANTSChannelRunActiveState();
-    }
-    
+    IrTargetRunActiveState();
+
     /* System sleep*/
     HEARTBEAT_OFF();
     SystemSleep();
     HEARTBEAT_ON();
-    
+
   } /* end while(1) main super loop */
-  
+
 } /* end main() */
 
 
