@@ -2429,6 +2429,9 @@
                 <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.c</name>
             </file>
             <file>
+                <name>$PROJ_DIR$\..\..\firmware_common\drivers\input_pins.c</name>
+            </file>
+            <file>
                 <name>$PROJ_DIR$\..\..\firmware_common\drivers\interrupts.c</name>
             </file>
             <file>
@@ -2481,9 +2484,6 @@
             <name>Source</name>
             <file>
                 <name>$PROJ_DIR$\..\..\firmware_common\application\debug.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\firmware_common\drivers\input_pins.c</name>
             </file>
             <file>
                 <name>$PROJ_DIR$\..\..\firmware_common\application\ir_target_app.c</name>

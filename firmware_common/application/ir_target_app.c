@@ -74,6 +74,8 @@ Promises:
 */
 void IrTargetInitialize(void)
 {
+  LCDCommand(LCD_CLEAR_CMD);
+  LCDMessage(LINE1_START_ADDR, "IR_TARGET");
   IrTarget_pfStateMachine = IrTargetSM_Idle;
 } /* end IrTargetInitialize() */
 
@@ -105,7 +107,7 @@ State Machine Function Definitions
  */
 static void IrTargetSM_Idle(void)
 {
-  if(HasThePinBeenActivated(INPUT_PIN_UPIMO))
+  if(IsPinActive(INPUT_PIN_UPIMO))
   {
     LedOn(WHITE);
     LedOn(PURPLE);
@@ -115,8 +117,6 @@ static void IrTargetSM_Idle(void)
     LedOn(YELLOW);
     LedOn(ORANGE);
     LedOn(RED);
-    PinActiveAcknowledge(INPUT_PIN_UPIMO);
-    IrTarget_u32Timeout = G_u32SystemTime1ms;
     IrTarget_pfStateMachine = IrTargetSM_SignalDetected;
   }
 } /* end IRTargetSM_Idle() */
@@ -125,7 +125,7 @@ static void IrTargetSM_Idle(void)
 /* Increments the timer, stops if BUTTON0 is pressed, other behavoir depends on mode, please check extra_information/the_different_modes.txt */
 static void IrTargetSM_SignalDetected(void)
 {
-  if(IsTimeUp(&IrTarget_u32Timeout, 1000))
+  if(!IsPinActive(INPUT_PIN_UPIMO))
   {
     LedOff(WHITE);
     LedOff(PURPLE);
