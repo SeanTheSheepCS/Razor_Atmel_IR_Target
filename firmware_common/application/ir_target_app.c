@@ -117,16 +117,41 @@ static void IrTargetSM_Idle(void)
     LedOn(YELLOW);
     LedOn(ORANGE);
     LedOn(RED);
+    IrTarget_u32Timeout = G_u32SystemTime1ms;
     IrTarget_pfStateMachine = IrTargetSM_SignalDetected;
   }
 } /* end IRTargetSM_Idle() */
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Increments the timer, stops if BUTTON0 is pressed, other behavoir depends on mode, please check extra_information/the_different_modes.txt */
+/* In this state... */
 static void IrTargetSM_SignalDetected(void)
 {
+  static bool bIsBuzzerOneOn = FALSE;
+  static bool bIsBuzzerTwoOn = TRUE;
+  if(IsTimeUp(&IrTarget_u32Timeout,100))
+  {
+    if(bIsBuzzerOneOn == FALSE && bIsBuzzerTwoOn == TRUE)
+    {
+      PWMAudioSetFrequency(BUZZER1,880);
+      PWMAudioOn(BUZZER1);
+      PWMAudioOff(BUZZER2);
+      bIsBuzzerOneOn = TRUE;
+      bIsBuzzerTwoOn = FALSE;
+    }
+    else if(bIsBuzzerOneOn == TRUE && bIsBuzzerTwoOn == FALSE)
+    {
+      PWMAudioSetFrequency(BUZZER2,220);
+      PWMAudioOn(BUZZER2);
+      PWMAudioOff(BUZZER1);
+      bIsBuzzerOneOn = FALSE;
+      bIsBuzzerTwoOn = TRUE;
+    }
+    IrTarget_u32Timeout = G_u32SystemTime1ms;
+  }
   if(!IsPinActive(INPUT_PIN_UPIMO))
   {
+    PWMAudioOff(BUZZER1);
+    PWMAudioOff(BUZZER2);
     LedOff(WHITE);
     LedOff(PURPLE);
     LedOff(BLUE);
